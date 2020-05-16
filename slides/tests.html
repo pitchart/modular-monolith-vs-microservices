@@ -1,5 +1,6 @@
 <section>
     <h2>How to test ?</h2>
+    <img src="resources/img/pipeline.png" alt="" style="max-height:80vh">
 </section>
 <section>
     <h2>Isolation</h2>
@@ -9,7 +10,7 @@
     </ul>
 </section>
 <section>
-    <h2>Architecture</h2>
+    <h2>Architecture Testing</h2>
     <pre><code>composer require --dev j6s/phparch</code></pre>
     <ul>
         <li>architectural testing library for PHP projects.</li>
@@ -37,7 +38,7 @@
 }</code></pre>
 </section>
 <section>
-    <h2>Component archicture tests</h2>
+    <h3>Component archicture tests</h3>
     <pre><code class="hljs php">public function test_component_is_isolated() {
     $components = [
         'Import\Analysis' => 'App\Import\Analysis',
@@ -55,7 +56,7 @@
 }</code></pre>
 </section>
 <section>
-    <h2>Container archicture tests</h2>
+    <h3>Container archicture tests</h3>
     <pre><code class="hljs php">public function test_container_is_isolated() {
     $architecture = (new Architecture())
         ->components(\array_merge($domains, $containers, $layers));
