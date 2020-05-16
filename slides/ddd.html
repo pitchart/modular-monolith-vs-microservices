@@ -19,12 +19,12 @@
     <h2>Frontières sémantiques</h2>
     <div class="fragment">
         <strong>Producteur :</strong>
-        sous ensemble d'entité, fournit les échantillons pour analyse, reçois des rapports après analyse <br>
+        sous ensemble d'entité, fournit les échantillons pour analyse, reçoit des rapports après analyse<br>
         <strong>Contexte :</strong> Annuaire (Entité)
     </div>
     <div class="fragment mtm">
         <strong>Exploitation :</strong>
-        producteur actif, ayant au moins un échantillon analysé <br>
+        producteur actif, ayant au moins un échantillon analysé<br>
         <strong>Contexte :</strong> Analyse (Value Object)
     </div>
 </section>
@@ -75,9 +75,16 @@
 </section>
 <section>
     <h2>Write model (commands)</h2>
-    <p><span class="focus">Request => Controller => Form (Validation) => Command => Handler => Domain (Business Rules)</span></p>
+    <p>
+        <span class="fragment">Request => Controller => Form (Validation)<br></span>
+        <span class="fragment">=> Command => Handler <br></span>
+        <span class="fragment">=> Domain (Business Rules)</span>
+    </span></p>
 </section>
 <section>
     <h2>Read model (query)</h2>
-    <p><span class="focus">Request => Controller => Serializer (Validation) => Query => DTO</span></p>
+    <p>
+        <span class="fragment">Request => Controller => Serializer (Validation)<br></span>
+        <span class="fragment">=> Query => DTO</span>
+    </p>
 </section>
