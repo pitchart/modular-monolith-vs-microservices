@@ -1,0 +1,197 @@
+<section>
+    <img src="resources/img/packagist.png" alt="">
+</section>
+<section>
+    <h1>Hands on !</h1>
+</section>
+<section>
+    <ul class="fragment">
+        <li>Programmation déclarative</li>
+        <li class="fragment"><strong class="inside-color">Composition :</strong> (g o f)(x) = g(f(x))</li>
+        <li class="fragment">Réutilisabilité :<strong> functions / __invoke()</strong></li>
+        <li class="fragment">"iterable agnostic" => <strong>transform(iterable $collection)</strong></li>
+        <li class="fragment">Immuable => <strong>return new static(...)</strong></li>
+        <li class="fragment">Generator</li>
+    </ul>
+</section>
+<section>
+    <h2>Iterable</h2>
+    <p>Pseudo-type, since PHP 7.1</p>
+    <ul>
+        <li><strong>array</strong> ( or <strong>[ ]</strong> )</li>
+        <li>class AnyTraversable implements <strong>\Traversable</strong> {}</li>
+    </ul>
+</section>
+<section>
+    <h2>Fonctions d'ordre supérieur</h2>
+    <ul>
+        <li>Une fonction qui retourne une fonction</li>
+        <li>Une fonction qui prend en paramètre au moins une fonction</li>
+        <li>Une fonction qui prend en paramètre au moins une fonction et qui retourne une fonction</li>
+    </ul>
+    <pre><code class="hljs php" contenteditable="true">function higher_order_function($list, $of, $arguments) {
+    return function ($item) use ($list, $of, $arguments) {
+        ...
+    };
+}</code></pre></section>
+<section>
+    <h3>Callable objects</h3>
+    <pre><code class="hljs php" contenteditable="true">class Invokable
+{
+    public function __construct($list, $of, $arguments)
+    {
+        // dependency injection
+    }
+
+    public function __invoke($item)
+    {
+        // execution
+    }
+}</code></pre>
+</section>
+<section>
+    <pre><code class="hljs php" contenteditable="true">class Composition
+{
+    private $functions = [];
+
+    public function __construct(callable ...$functions)
+    {
+        $this->functions = $functions;
+    }
+
+    public function append(callable ...$callback)
+    {
+        return new self(...array_merge($this->functions, $callback));
+    }
+}</code></pre>
+</section>
+<section>
+<pre><code class="hljs php" contenteditable="true">class Composition
+{
+    public function __invoke()
+    {
+        if (empty($this->functions)) {
+            return (static function ($value) { return $value; })(func_get_arg(0));
+        }
+
+        $functionList = array_reverse($this->functions);
+        $first = array_shift($functionList);
+        return array_reduce(
+            $functionList,
+            static function ($carry, $item) { return $item($carry); },
+            call_user_func_array($first, func_get_args())
+        );
+    }
+}</code></pre>
+</section>
+<section>
+<pre><code class="hljs clojure">(fn [rf]
+    (fn ([] ...) ;; init
+    ([accumulator] ...) ;; completion
+    ([accumulator input] ...))) ;; step</code></pre>
+    <pre class="fragment"><code class="hljs php" contenteditable="true">interface Reducer
+{
+    public function init();
+
+    public function step($accumulator, $input);
+
+    public function complete($accumulator);
+}</code></pre>
+</section>
+<section>
+    <pre><code class="hljs php" contenteditable="true">class Map implements Reducer
+{
+    public function __construct(Reducer $next, callable $callback) {
+        $this->next = $next;
+        $this->callback = $callback;
+    }
+
+    public function init() { return $this->next->init(); }
+
+    public function complete($result) { return $this->next->complete($result); }
+
+    public function step($result, $current)
+    {
+        return $this->next->step($result, ($this->callback)($current));
+    }
+}</code></pre>
+</section>
+<section>
+    <pre><code class="hljs php" contenteditable="true">function map(callable $callback)
+{
+    return static function (Reducer $reducer) use ($callback) {
+        return new Reducer\Map($reducer, $callback);
+    };
+}</code></pre>
+</section>
+<section>
+    <pre><code class="hljs php" contenteditable="true">function transduce(callable $transducers, Termination $reducer, $iterable, $initial = null)
+{
+    $transformation = $transducer($reducer); /** @var Reducer $transformation */
+    $accumulator = ($initial === null) ? $transformation->init() : $initial; // init
+
+    foreach (iter($iterable) as $current) {
+        $accumulator = $transformation->step($accumulator, $current); // step
+
+        if ($accumulator instanceof Reduced) {
+            $accumulator = $accumulator->value(); //early termination
+            break;
+        }
+    }
+    return $transformation->complete($accumulator); // completion
+}</code></pre>
+</section>
+<section>
+    <pre><code class="hljs php" contenteditable="true">foreach ($contacts as $contact) {
+    if ($contact->getAddresses() !== null) {
+        foreach ($contact->getAddresses() as $address) {
+            if ($address->isActive()) {
+                $cities[] = new City($address->getZip(), $address->getCity());
+            }
+        }
+    }
+}</code></pre>
+</section>
+<section>
+    <pre><code class="hljs php" contenteditable="true">// sequence
+$cities = transform($contacts)
+    ->filter(function (User $contact) {
+        return count($contact->getAddresses()) > 0;
+    })->mapCat(function (User $contact) {
+        return $contact->getAddresses();
+    })->filter(function (Address $address) {
+        return $address->isActive();
+    })->map(function (Address $address) {
+        return new City($address->getZip(), $address->getCity());
+    })->toIterator(); // here is the loop ;)
+    </code></pre>
+</section>
+<section>
+    <pre><code class="hljs php" contenteditable="true">// eduction
+$products = transform($carts)
+    ->mapCat(function (Cart $cart) {
+        return $cart->getProducts();
+    })->filter(function (Product $product) {
+        return $product->getPrice() > 0;
+    })
+; // no loop
+    </code></pre>
+</section>
+<section>
+    <pre><code class="hljs php" contenteditable="true">// transduce
+$sold = $products
+    ->map(function (Product $product) {
+        return $product->getPrice();
+    })->sum() // here is the loop ;)
+;
+    </code></pre>
+</section>
+<section>
+    <pre><code class="hljs php" contenteditable="true"> // into
+$productsSold = $products
+    ->distinct(function (Product $product) {
+        return $product->getId();
+    })->toArray() // here is the loop ;)
+;
+    </code></pre>
+</section>

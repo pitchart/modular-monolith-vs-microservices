@@ -1,0 +1,71 @@
+<section>
+    <h2>How to test ?</h2>
+</section>
+<section>
+    <h2>Isolation</h2>
+    <ul>
+        <li>Utilisation des conteneurs de développement lors de l'étape de tests dans les pipelines</li>
+        <li>Gestion de suites de tests par services pour les tests fonctionnels</li>
+    </ul>
+</section>
+<section>
+    <h2>Architecture</h2>
+    <pre><code>composer require --dev j6s/phparch</code></pre>
+    <ul>
+        <li>architectural testing library for PHP projects.</li>
+        <li>inspired by archlint (C#) and archunit (java).</li>
+    </ul>
+</section>
+<section>
+    <h2>Boundary Context architexture tests</h2>
+    <pre><code class="hljs php">public function test_domain_context_is_isolated() {
+    $contexts = [
+        'Domain\Common' => 'App\Domain\Common',
+        'Domain\Analysis' => 'App\Domain\Analysis',
+        'Domain\Directory' => 'App\Domain\Directory',
+        'Domain\ReferenceData' => 'App\Domain\ReferenceData',
+    ];
+    $architecture = (new Architecture()
+        ->components($contexts)
+        ->component('Domain\Analysis')
+        ->isAllowedToDependOn('Domain\Common')
+        ->mustNotDependOnAnyOtherComponent()
+    ;
+    (new PhpArch())->fromDirectory(__DIR__.'/../../src')
+        ->validate($architecture)
+        ->assertHasNoErrors();
+}</code></pre>
+</section>
+<section>
+    <h2>Component archicture tests</h2>
+    <pre><code class="hljs php">public function test_component_is_isolated() {
+    $components = [
+        'Import\Analysis' => 'App\Import\Analysis',
+        'Import\Directory' => 'App\Import\Directory',
+        'Import\ReferenceData' => 'App\Import\ReferenceData',
+    ];
+    $architecture = (new Architecture()
+        ->components($components)
+        ->component('Import\Analysis')
+        ->mustNotDependOnAnyOtherComponent()
+    ;
+    (new PhpArch())->fromDirectory(__DIR__.'/../../src')
+        ->validate($architecture)
+        ->assertHasNoErrors();
+}</code></pre>
+</section>
+<section>
+    <h2>Container archicture tests</h2>
+    <pre><code class="hljs php">public function test_container_is_isolated() {
+    $architecture = (new Architecture())
+        ->components(\array_merge($domains, $containers, $layers));
+        ->component('Reporting')
+        ->isAllowedToDependOn('Domain/Reporting')
+        ->isAllowedToDependOn('Infrastructure')
+        ->mustNotDependOnAnyOtherComponent();
+
+        (new PhpArch())->fromDirectory(__DIR__.'/../../src')
+            ->validate($architecture)
+            ->assertHasNoErrors();
+}</code></pre>
+</section>

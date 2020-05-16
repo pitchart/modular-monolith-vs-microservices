@@ -1,0 +1,44 @@
+<section>
+    <h2>Monolithe modulaire</h2>
+</section>
+<section>
+    <img src="resources/img/monolith-vs-microservices.jpg" alt="">
+</section>
+<section>
+    <h2>Complexité</h2>
+    <ul>
+        <li><strong class="inside-color">Essentielle :</strong> <span class="fragment">le problème que l'on cherche à résoudre</span></li>
+        <li><strong class="inside-color">Obligatoire :</strong> <span class="fragment">la réponse approtée à ce problème</span></li>
+        <li><strong class="inside-color">Accidentelle :</strong> <span class="fragment">arrivée on ne sait comment, utile à on ne sait quoi ...</span></li>
+    </ul>
+</section>
+<section>
+    <h2>Couplage</h2>
+    <img src="resources/img/complexity.png" alt="">
+</section>
+<section>
+    <h2>C4 Model</h2>
+    <ul>
+        <li><strong>Context :</strong> système applicatif</li>
+        <li><strong>Container :</strong> unité de déploiement</li>
+        <li><strong>Component :</strong> blocs structurels majeurs</li>
+        <li><strong>Class : implémentation</strong></li>
+    </ul>
+</section>
+<section>
+    <img src="resources/img/c4-context.png" alt="" style="height: 80vh">
+</section>
+<section>
+    <img src="resources/img/c4-containers.png" alt="" style="height: 80vh; width:auto">
+</section>
+<section>
+    <img src="resources/img/c4-component.png" alt="" style="height: 80vh">
+</section>
+<section>
+    <h2>Les choix</h2>
+    <ul>
+        <li>DDD => isolation des contextes</li>
+        <li>CQRS => isolation lecture / écriture</li>
+        <li>Séparation du code en bundles pour permettre la création des conteneurs</li>
+    </ul>
+</section>

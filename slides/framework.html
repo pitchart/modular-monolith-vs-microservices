@@ -1,0 +1,172 @@
+<section>
+    <h2>Symfony</h2>
+</section>
+<section>
+    <pre><code>src/
+├── Application
+│   ├── Access            ## Bundle level
+│   ├── Analysis
+│   ├── Directory
+│   └── Flux
+├── Domain
+│   ├── Access
+│   ├── Analysis
+│   ├── Common
+│   ├── Directory
+│   ├── Export
+│   ├── Flux
+│   ├── Import
+│   └── ReferenceData
+├── Export
+├── Import
+│   ├── Analysis
+│   ├── Directory
+│   └── ReferenceData
+├── Infrastructure
+│   ├── ...
+│   ├── Form
+│   ├── MongoDb
+│   ├── Resources
+│   ├── Security
+│   ├── Serialization
+│   ├── ...
+│   └── Validation
+└── Reporting</code></pre>
+</section>
+<section>
+    <h2>Configuration</h2>
+</section>
+<section>
+    <pre><code>config/import/
+├── bundles.php
+├── packages
+├── routes
+├── routes.php
+├── services.php
+└── services_test.php
+public/import/
+├── bundles
+└── index.php
+bin/import/
+└── console</code></pre>
+</section>
+<section>
+    <pre><code>abstract class MicroServiceKernel extends Kernel
+{
+    use MicroKernelTrait;
+
+    const CONFIG_EXTS = '.{php,xml,yaml,yml}';
+
+    protected $serviceName;
+
+    public function __construct($environment, $debug, string $serviceName)
+    {
+        parent::__construct($environment, $debug);
+        $this->serviceName = $serviceName;
+    }
+
+    public function getConfigurationPath()
+    {
+        return $this->getProjectDir() . \sprintf('/config/%s', $this->serviceName);
+    }
+}</code></pre>
+</section>
+<section>
+    <h2>Containers</h2>
+</section>
+<section>
+    <h2>API</h2>
+    <pre><code>services:
+### import API PHP-FPM ##############################################
+    import-api-php-fpm:
+        build:
+            context: ./php-fpm
+            args:
+                - PHP_VERSION=${PHP_VERSION}
+                - ...
+        volumes:
+            - ./php-fpm/php${PHP_VERSION}.ini:/usr/local/etc/php/php.ini
+            - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
+        expose:
+            - "9000"
+        extra_hosts:
+            - "dockerhost:${DOCKER_HOST_IP}"
+        environment:
+            - PHP_IDE_CONFIG=${PHP_IDE_CONFIG}
+        networks:
+            - backend
+            - rabbitmq</code></pre>
+</section>
+<section>
+    <pre><code>### import API NGINX Server #########################################
+    import-api:
+        build:
+            context: ./nginx
+            args:
+                - PHP_UPSTREAM_CONTAINER=import-api-php-fpm
+                - PHP_UPSTREAM_PORT=${NGINX_PHP_UPSTREAM_PORT}
+                - PHP_PUBLIC_FOLDER=public/import
+        volumes:
+            - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
+            - ${NGINX_HOST_LOG_PATH}/import:/var/log/nginx
+        expose:
+            - "80"
+            - "443"
+        depends_on:
+            - import-api-php-fpm
+        networks:
+            - frontend
+            - backend</code></pre>
+</section>
+<section>
+    <h2>Workers</h2>
+    <pre><code>    php-worker:
+      build:
+        context: ./php-worker
+        args:
+          - PHP_VERSION=${PHP_VERSION}
+          - INSTALL_XDEBUG=${PHP_FPM_INSTALL_XDEBUG}
+          - INSTALL_MONGO=${PHP_FPM_INSTALL_MONGO}
+          - INSTALL_AMQP=${PHP_FPM_INSTALL_AMQP}
+          - INSTALL_PHPREDIS=${PHP_FPM_INSTALL_PHPREDIS}
+          - INSTALL_INTL=${PHP_FPM_INSTALL_INTL}
+          - INSTALL_OPCACHE=${PHP_FPM_INSTALL_OPCACHE}
+          - TZ=${PHP_FPM_TIMEZONE}
+      volumes:
+        - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
+        - ./php-worker/supervisord.d:/etc/supervisord.d
+      depends_on:
+        - workspace
+      extra_hosts:
+        - "dockerhost:${DOCKER_HOST_IP}"
+      networks:
+        - backend
+        - rabbitmq</code></pre>
+</section>
+<section>
+    <h2>symfony/messenger</h2>
+    <pre><code class="hljs php">use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+
+return function (ContainerConfigurator $container) {
+    $container->extension('framework', [
+        'messenger' => [
+            'transports' => [
+                'sample' => [
+                    'dsn' =>'%env(MESSENGER_TRANSPORT_DSN)%/messages',
+                    'options' => [
+                        'exchange' => [
+                            'name' => 'renum',
+                            'default_publish_routing_key' => 'renum',
+                        ],
+                        'queues' => ['messages_renum' => ['binding_keys' => ['renum']]],
+                    ],
+                ],
+            ],
+            'routing' => [
+                \App\Import\Analysis\Messaging\SampleImported::class => 'async',
+            ],
+        ],
+    ]);
+};
+</code></pre>
+</section>
