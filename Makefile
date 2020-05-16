@@ -9,8 +9,6 @@ serve:
 
 dist:
 	grunt dist
-	cd dist && git add .
-	cd dist && git commit -m "New release"
-	cd dist && git push
+	cd dist && git add . && git commit -m "feat(slides): new release" && git push
 
 .PHONY: install serve dist
