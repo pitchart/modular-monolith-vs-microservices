@@ -8,6 +8,27 @@
         <li>Utilisation des conteneurs de développement lors de l'étape de tests dans les pipelines</li>
         <li>Gestion de suites de tests par services pour les tests fonctionnels</li>
     </ul>
+    <pre class="fragment"><code class="hljs xml"><?xml version="1.0" encoding="UTF-8"?>
+<phpunit backupGlobals="false"
+         colors="true"
+         bootstrap="tests/bootstrap.php"
+>
+    <testsuites>
+        <testsuite name="application">
+            <directory>tests/App/Functional/Application</directory>
+        </testsuite>
+        <testsuite name="import">
+            <directory>tests/App/Functional/Import/</directory>
+        </testsuite>
+        <testsuite name="infrastructure">
+            <directory>tests/App/Functional/Infrastructure/</directory>
+        </testsuite>
+        <testsuite name="unit">
+            <directory>tests/App/Unit</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>
+</code></pre>
 </section>
 <section>
     <h2>Architecture Testing</h2>
@@ -18,7 +39,31 @@
     </ul>
 </section>
 <section>
-    <h2>Boundary Context architecture tests</h2>
+    <h3>j6s/phparch</h3>
+    <ul>
+        <li>Extension de PHPUnit</li>
+        <li class="fragment">Définition d'une architecture logicielle</li>
+        <li class="fragment">Ajout de validateurs (par namespace ou arborescence)</li>
+        <li class="fragment">Dépendances inclusives ou exlusives</li>
+        <li class="fragment">Fluent API</li>
+    </ul>
+</section>
+<section>
+    <h3>j6s/phparch</h3>
+    <pre><code class="hljs php">public function testArchitecture()
+{
+    $architecture = (new Architecture())
+        ->component('Components')->identifiedByNamespace('J6s\\PhpArch\\Component')
+        ->mustNotDependOn('Validation')->identifiedByNamespace('J6s\\PhpArch\\Validation');
+
+    (new PhpArch())
+        ->fromDirectory(__DIR__ . '/../../app')
+        ->validate($architecture)
+        ->assertHasNoErrors();
+}</code></pre>
+</section>
+<section>
+    <h3>Boundary Context architecture tests</h3>
     <pre><code class="hljs php">public function test_domain_context_is_isolated() {
     $contexts = [
         'Domain\Common' => 'App\Domain\Common',
