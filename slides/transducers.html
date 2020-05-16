@@ -1,0 +1,79 @@
+<section>
+    <h1><a href="https://clojure.org/reference/transducers">Transducers</a> <small>by clojure</small></h1>
+    <blockquote>
+        Composable algorithmic transformations; compose directly, without awareness of input or creation of intermediate aggregates.
+    </blockquote>
+</section>
+<section>
+<pre><code class="hljs clojure">// clojure
+(
+    into []
+    (comp (flatten) (map inc) (filter fn [x] (+ x 1)))
+    [1, [2, [3, 4]]]
+)
+</code></pre>
+    </section>
+<section>
+    <h2>Lexique</h2>
+    <div>
+        <strong>Reducing function (aka Reducer) : </strong> fonction qui serait utilisée par reduce() <br>
+        <em>whatever, input -> whatever</em>
+    </div>
+    <br>
+    <div>
+        <strong>Transducer (aka xform) :</strong> transformation d'un reducer à un autre <br>
+        <em>(whatever, input -> whatever) -> (whatever, input -> whatever)</em>
+    </div>
+</section>
+<section>
+    <h2>How to ?</h2>
+</section>
+<section>
+    <h3>into</h3>
+    <div>Applique un transducer sur une collection et retourne une nouvelle collection</div>
+    <pre><code class="hljs clojure">(def xf (comp (filter odd?) (map inc)))
+(into [] xf (range 5)) ;; => [2, 4]
+</code></pre>
+</section>
+<section>
+    <h3>sequence</h3>
+    <div>Identique à into, mais de manière "lazy" (les opérations sont appliquées à l'utilisation)</div>
+    <pre><code class="hljs clojure">(def xf (comp (filter odd?) (map inc)))
+(sequence xf (range 5))</code></pre>
+</section>
+<section>
+    <h3>transduce</h3>
+    <div>Applique un ensemble d'opérations sur une collection, retourne le résultat immédiatement</div>
+    <pre><code class="hljs clojure">(def xf (comp (filter odd?) (map inc)))
+(transduce xf + (range 5)) ;; => 6
+(transduce xf + 100 (range 5));; => 106</code></pre>
+</section>
+<section>
+    <h3>eduction</h3>
+    <div>Capture le process d'opérations à appliquer sur une collection. </div>
+    <pre><code class="hljs clojure">(def xf (comp (filter odd?) (map inc)))
+(def iter (eduction xf (range 5)))
+(reduce + 0 iter) ;; => 6
+(reduce + 100 iter) ;; => 106
+</code></pre>
+</section>
+<section>
+    <h2>Créer des transducers</h2>
+    <pre><code class="hljs clojure">(fn [rf]
+    (fn ([] ...) ;; init
+    ([accumulator] ...) ;; completion
+    ([accumulator input] ...))) ;; step</code></pre>
+<ul>
+    <li class="fragment">init: retourne une valeur d'initialisation du process</li>
+    <li class="fragment">step(accumulator, input): la fonction de réduction</li>
+    <li class="fragment">complete(accumulator): produit la valeur finale et/ou nettoie l'état du traitement</li></ul>
+</section>
+<section>
+    <h2>Pipeline "transducibles"</h2>
+    <div><strong class="inside-color">Un pipeline "transducible"</strong> est défini par une succession d'étapes, chacune traitant une valeur.</div>
+    <ul>
+        <li>La source peut varier en fonction du process (tableau, collection, itérateur, stream ...)</li>
+        <li>Si une étape renvoie une valeur "reduced", le pipeline stoppe. La valeur doit être extraite avant l'étape de completion</li>
+        <li>L'étape de completion doit être exécutée une seule et unique fois sur l'accumulateur</li>
+    </ul>
+</section>

@@ -1,0 +1,83 @@
+<section>
+    <h1>Domain Driven Design</h1>
+</section>
+<section>
+    <h2>Bounded contexts</h2>
+</section>
+<section>
+    <img src="resources/img/bounded_contexts.png" alt="" style="height: 80vh">
+</section>
+<section>
+    <h2>Ubiquitous language</h2>
+    <ul>
+        <li>Nommer les concepts au niveau métier</li>
+        <li class="fragment">Définir les frontières sémantiques</li>
+        <li class="fragment">Définir les frontières liées aux cycles de vie</li>
+    </ul>
+</section>
+<section>
+    <h2>Frontières sémantiques</h2>
+    <div class="fragment">
+        <strong>Producteur :</strong>
+        sous ensemble d'entité, fournit les échantillons pour analyse, reçois des rapports après analyse <br>
+        <strong>Contexte :</strong> Annuaire (Entité)
+    </div>
+    <div class="fragment mtm">
+        <strong>Exploitation :</strong>
+        producteur actif, ayant au moins un échantillon analysé <br>
+        <strong>Contexte :</strong> Analyse (Value Object)
+    </div>
+</section>
+<section>
+    <h2>Persistence des values object ?</h2>
+    <pre><code class="hljs php">class Address
+{
+    /** @var string */
+    private $street;
+
+    /** @var string */
+    private $postalCode;
+
+    /** @var string */
+    private $city;
+
+    /** @var string */
+    private $country;
+}</code></pre>
+</section>
+<section>
+    <h2>ORM : Use value objects</h2>
+    <pre><code class="hljs xml"><doctrine-mapping>
+    <embeddable name="App\Domain\Directory\Entity\Address">
+        <field name="street" type="string" ></field>
+        <field name="postalCode" type="string" ></field>
+        <field name="city" type="string" ></field>
+        <field name="country" type="string" ></field>
+    </embeddable>
+</doctrine-mapping></code></pre>
+</section>
+<section>
+    <h2>ODM: embedded</h2>
+    <pre><code class="hljs xml"><doctrine-mongo-mapping>
+    <embedded-document name="App\Domain\Directory\Entity\Address">
+        <field name="street" type="string" ></field>
+        <field name="postalCode" type="string" ></field>
+        <field name="city" type="string" ></field>
+        <field name="country" type="string" ></field>
+    </embedded-document>
+</doctrine-mongo-mapping></code></pre>
+</section>
+<section>
+    <h1>CQ(R)S</h1>
+</section>
+<section>
+    <img src="resources/img/martin-fowler-cqrs.png" alt="" style="height: 60vh">
+</section>
+<section>
+    <h2>Write model (commands)</h2>
+    <p><span class="focus">Request => Controller => Form (Validation) => Command => Handler => Domain (Business Rules)</span></p>
+</section>
+<section>
+    <h2>Read model (query)</h2>
+    <p><span class="focus">Request => Controller => Serializer (Validation) => Query => DTO</span></p>
+</section>

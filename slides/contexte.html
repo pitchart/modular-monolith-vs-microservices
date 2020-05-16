@@ -1,0 +1,54 @@
+<section>
+    <h1>C'est l'histoire d'un projet ...</h1>
+</section>
+<section>
+    <h2>Analyse du besoin</h2>
+    <ul>
+        <li><strong>Contextes métier isolés :</strong> Résultats d'analyse, Annuaire, Données de référence</li>
+        <li><strong>Imports :</strong> gros volume de données, source FTP, besoin de performance, utilisation bornée dans le temps</li>
+        <li><strong>Reporting :</strong> stockage des résultats d'imports (erreurs, mises à jour, créations ...), génération de documents (pdf, excel ...), notifications, déclenchement suite import</li>
+        <li><strong>Exports :</strong> vers d'autres SI, vers les différents intervenants</li>
+    </ul>
+</section>
+<section>
+    <h2>Analyse du besoin</h2>
+    <ul>
+        <li><strong>Consultation :</strong> au fil de la journée, readonly pour certains contextes du métier</li>
+        <li><strong>Volumétrie :</strong> importante en import, export et stockage des résultats d'analyse. Prévision en hausse.</li>
+        <li><strong>Évolutivité :</strong> échéances à court et moyen termes</li>
+    </ul>
+</section>
+<section>
+    <h2>Déductions</h2>
+    <ul>
+        <li>Besoins de performance variables en fonction des contextes métiers</li>
+        <li>Sécurisation des données entrantes</li>
+        <li>Échanges entre services : import => reporting => notification</li>
+    </ul>
+</section>
+<section>
+    <h2>Microservices ?</h2>
+    <img src="resources/img/monolith-vs-microservices-dream.jpg" alt="">
+</section>
+<section>
+    <h2>Pros</h2>
+    <ul>
+        <li>Scalabilité indépendante de chaque service, au besoin</li>
+        <li>Bases de code réduites, rapidité de montée en compétence sur un domaine</li>
+        <li>Facilité de maintient, évolution, débug ...</li>
+    </ul>
+</section>
+<section>
+    <h2>Cons</h2>
+    <ul>
+        <li>nécessite des équipes de développement importantes / scindées</li>
+        <li>base de code scindée => MAJ de code commun coûteuses ...</li>
+        <li>requêtes BDD deviennent requêtes HTTP (44 Mo d'erreurs ????)</li>
+    </ul>
+</section>
+<section>
+    <img src="resources/img/monolith-vs-microservice-real.jpeg" alt="">
+</section>
+<section>
+    <img src="resources/img/simon-brown-quote.png" alt="">
+</section>
